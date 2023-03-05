@@ -1,4 +1,4 @@
-import constants as const
+import constants
 import util
 
 import os, sys
