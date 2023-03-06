@@ -1,4 +1,4 @@
-import constants as const
+import constants
 import pandas as pd
 
 def find_team_games(df, seas, team):
@@ -9,5 +9,7 @@ def find_team_games(df, seas, team):
 def load_csv(filename):
   df = pd.read_csv(filename)
   if 'Season' in df.columns:
-    df.drop(df[df['Season'] < const.first_season].index, inplace=True)
-  return df.reset_index()
+    df.drop(df[df['Season'] < constants.first_season].index, inplace=True)
+    for seas in constants.drop_seasons:
+      df.drop(df[df['Season'] == seas].index, inplace=True)
+  return df.reset_index(drop=True)
