@@ -1,41 +1,11 @@
 import constants
 import util
-
 import os, sys
 import pandas as pd
 import numpy as np
-
 from tqdm import tqdm
 
-datapath = os.path.join('..', 'data', 'march-machine-learning-mania-2023')
-base_fields = ['Score', 'FGA', 'FGM', 'FGA3', 'FGM3']
-
-class Fields:
-  def __init__(self, base_fields):
-    self.base   = base_fields
-    self.foravg = [f'For{f}Avg' for f in base_fields]
-    self.oppavg = [f'Opp{f}Avg' for f in base_fields]
-    self.Ta_avg = [f'Ta{f}' for f in self.foravg] + [f'Ta{f}' for f in self.oppavg]
-    self.Tb_avg = [f'Tb{f}' for f in self.foravg] + [f'Tb{f}' for f in self.oppavg]
-    self.win    = [f'W{f}' for f in base_fields]
-    self.loss   = [f'L{f}' for f in base_fields]
-
-'''
-Make a dictionary of conference IDs
-'''
-def load_conf_dict():
-  conf_df = util.load_csv(os.path.join(datapath, 'Conferences.csv'))
-  conf_df['ConfID'] = conf_df.index
-  return dict(zip(conf_df.ConfAbbrev, conf_df.ConfID))
-
-'''
-Load teams, adding conference ID
-'''
-def load_teams():
-  conf_dict = load_conf_dict()
-  team_df = util.load_csv(os.path.join(datapath, 'MTeamConferences.csv'))
-  team_df['ConfId'] = list(map(conf_dict.get, team_df['ConfAbbrev']))
-  return team_df
+from objects import Fields
 
 '''
 Given a set of box scores, find the averages stats for a set of either winning
@@ -119,9 +89,9 @@ def lsqerr(df, input_fields, output_fields, x):
   return np.sqrt(sqr_err.mean(axis=0))
 
 if __name__ == "__main__":
-  fields  = Fields(base_fields)
-  team_df = load_teams()
-  box_df  = util.load_csv(os.path.join(datapath, 'MRegularSeasonDetailedResults.csv'))
+  fields  = Fields(constants.box_stats)
+  team_df = util.load_teams()
+  box_df  = util.load_csv('MRegularSeasonDetailedResults.csv')
   add_averages(fields, team_df, box_df)
 
   team_df.to_csv(os.path.join(datapath, 'MTeamConferencesWithAvg.csv'), index=False)
@@ -131,7 +101,8 @@ if __name__ == "__main__":
   train_df = box_df.loc[box_df.index[ix_train]]
   test_df  = box_df.loc[box_df.index[~ix_train]]
 
-  input_fields = fields.Ta_avg + fields.Tb_avg
+  lstsq_fields = Fields(['Score', 'FGM', 'FGA', 'FGA3', 'FGM3'])
+  input_fields = lstsq_fields.Ta_avg + lstsq_fields.Tb_avg
   output_fields = ['TaScore', 'TbScore']
   x, err, _, _ = compute_lstsq(train_df, input_fields, output_fields)
   
