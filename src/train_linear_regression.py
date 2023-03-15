@@ -13,7 +13,8 @@ if __name__ == "__main__":
   args = vars(parser.parse_args())
 
   # Load data
-  team_df = util.load_teams(
+  teams_df = util.load_csv(
+    'MTeamConferencesWithAvg.csv',
     first_season=args['first_season'],
     drop_seasons=args['drop_seasons']
   )
@@ -28,7 +29,7 @@ if __name__ == "__main__":
   input_fields = input_fields_base.Ta_avg + input_fields_base.Tb_avg
   output_fields = ['TaScore', 'TbScore']
 
-  lspred = LeastSquares(stats_df, input_fields, output_fields)
+  lspred = LeastSquares(stats_df, teams_df, input_fields, output_fields)
   pred_train, true_train = lspred.train()
   pred_test, true_test   = lspred.results(lspred.test_df)
 

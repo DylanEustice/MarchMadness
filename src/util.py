@@ -3,10 +3,9 @@ import pandas as pd
 import numpy as np
 import os
 
-def find_team_games(df, seas, team):
-  is_seas = seas == df['Season']
-  is_team = (df['WTeamID'] == team) | (df['LTeamID'] == team)
-  return df[is_seas & is_team]
+def find_team_games(teams_df, team, seas):
+  df = teams_df[(teams_df['TeamID'] == team) & (teams_df['Season'] == seas)]
+  return df.reset_index(drop=True)
 
 '''
 Load in a CSV data file, dropping any seasons before 'first_season' and any
