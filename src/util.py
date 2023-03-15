@@ -1,5 +1,6 @@
 import constants
 import pandas as pd
+import numpy as np
 import os
 
 def find_team_games(df, seas, team):
@@ -53,3 +54,26 @@ def load_teams(
   )
   team_df['ConfId'] = list(map(conf_dict.get, team_df['ConfAbbrev']))
   return team_df
+
+'''
+Return a test and train dataset
+'''
+def seperate_df(df, train_ratio=constants.train_ratio):
+  ix_train = np.random.random(df.shape[0]) < train_ratio
+  train_df = df.loc[df.index[ix_train]]
+  test_df  = df.loc[df.index[~ix_train]]
+  return train_df, test_df
+
+'''
+Return the percentage of the time the predicted winner matched the real winner
+'''
+def winrate(pred, real):
+  pred_winner = pred[:,0] > pred[:,1]
+  real_winner = real[:,0] > real[:,1]
+  return (pred_winner == real_winner).mean()
+
+'''
+Compute the mean square error
+'''
+def mse(a, b, axis=0):
+  return np.sqrt(((a - b)**2).mean(axis=axis))

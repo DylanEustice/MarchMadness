@@ -75,7 +75,6 @@ if __name__ == "__main__":
   args = vars(parser.parse_args())
 
   # Load data
-  fields  = Fields(constants.box_stats)
   team_df = util.load_teams(
     first_season=args['first_season'],
     drop_seasons=args['drop_seasons']
@@ -85,6 +84,9 @@ if __name__ == "__main__":
     first_season=args['first_season'],
     drop_seasons=args['drop_seasons']
   )
+
+  # Compute averages for all box score stats
+  fields = Fields(constants.box_stats)
   add_averages(fields, team_df, box_df)
 
   # Write new files
